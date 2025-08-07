@@ -12,17 +12,17 @@ import frc.robot.Calc.Speed;
 public class Loc extends Command {
 
   private final Drive driveSubsystem;
-  private final Joystick joyDeliciu;
+  private final Joystick joystick;
   Speed speeds;
   
-    private double multiplier = 0;
+    private double multiplier = 0.5;
     private boolean a;
     private boolean b;
     private boolean x;
   
-    public Loc(Drive driveSubsystem,Joystick joyDeliciu) {
+    public Loc(Drive driveSubsystem,Joystick joystick) {
       this.driveSubsystem = driveSubsystem;
-      this.joyDeliciu = joyDeliciu;
+      this.joystick = joystick;
     addRequirements(driveSubsystem);
   }
 
@@ -33,9 +33,9 @@ public class Loc extends Command {
 
   @Override
   public void execute() {
-    Smart();
     button();
     MainControl();
+    SmartDashboard();
   }
 
   private void setSpeed(double leftSpeed, double rightSpeed) {
@@ -50,9 +50,9 @@ public class Loc extends Command {
   }
 
   public void button(){
-    a = joyDeliciu.getRawButton(Constants.button_A);
-    b = joyDeliciu.getRawButton(Constants.button_B);
-    x = joyDeliciu.getRawButton(Constants.button_X);
+    a = joystick.getRawButton(Constants.button_A);
+    b = joystick.getRawButton(Constants.button_B);
+    x = joystick.getRawButton(Constants.button_X);
 
     if (a) multiplier = 0.25;
     else if (b) multiplier = 0.5;
@@ -60,32 +60,34 @@ public class Loc extends Command {
   }
 
   public void MainControl() {
-    double X = joyDeliciu.getX();
-    double Y = joyDeliciu.getY();
-    double RT = joyDeliciu.getRawAxis(Constants.RTrigger);
-    double LT = joyDeliciu.getRawAxis(Constants.LTrigger);
+    double left_X = joystick.getX();
+    double left_Y = joystick.getY();
+    double right_X = joystick.getRawAxis(Constants.right_X);
+    double right_Y = joystick.getRawAxis(Constants.right_Y);
+    double RT = joystick.getRawAxis(Constants.RTrigger);
+    double LT = joystick.getRawAxis(Constants.LTrigger);
+    double POV = joystick.getPOV();
 
-    if (joyDeliciu.getPOV() != Constants.povDeadZone){
-      speeds = Calc.calculatePov(joyDeliciu, multiplier);
-    }
-    else if (RT > Constants.deadZone || LT > Constants.deadZone) {
-      speeds = Calc.calculateTrigger(joyDeliciu, multiplier);
-    }
-    else if (Math.abs(X) >= Constants.deadZone || Math.abs(Y) >= Constants.deadZone || Math.abs(X) < Constants.negativeDeadZone || Math.abs(Y) < Constants.negativeDeadZone) {
-      speeds = Calc.calculateAnalogic(joyDeliciu, multiplier);
-    }
-      else {
+    if (RT > Constants.deadZone || LT > Constants.deadZone) {
+      speeds = Calc.calculateTrigger(joystick, multiplier);
+    } else if (POV != Constants.povDeadZone) {
+      speeds = Calc.calculatePov(joystick, multiplier);
+    } else if (left_X > Constants.deadZone || left_X < Constants.negativeDeadZone || left_Y > Constants.deadZone || left_Y < Constants.negativeDeadZone) {
+      speeds = Calc.calculateLeftAnalogic(joystick, multiplier);
+    } else if (right_X > Constants.deadZone || right_X < Constants.negativeDeadZone || right_Y > Constants.deadZone || right_Y < Constants.negativeDeadZone) {
+      speeds = Calc.calculateRightAnalogic(joystick, multiplier);
+    } else {
+      speeds = new Speed(0, 0);
       stopDrive();
       return;
     }
-  
-    setSpeed(speed.leftSpeed, speed.rightSpeed);
+    setSpeed(speeds.m_left, speeds.m_right);
   }
 
-  public void Smart(){
+  public void SmartDashboard(){
     if (speeds != null) {
-      SmartDashboard.putNumber("Left Speed", speed.leftSpeed);
-      SmartDashboard.putNumber("Right Speed", speed.rightSpeed);
+      SmartDashboard.putNumber("Left Speed", speeds.m_left);
+      SmartDashboard.putNumber("Right Speed", speeds.m_right);
     } else {
       SmartDashboard.putNumber("Left Speed", 0);
       SmartDashboard.putNumber("Right Speed", 0);
@@ -93,10 +95,8 @@ public class Loc extends Command {
     SmartDashboard.putBoolean("Button A", a);
     SmartDashboard.putBoolean("Button B", b);
     SmartDashboard.putBoolean("Button X", x);
-    SmartDashboard.putNumber("VelB", multiplier);
-  }
-
-
+    SmartDashboard.putNumber("Multiplicador", multiplier);
+  }  
 
   @Override
   public void end(boolean interrupted) {

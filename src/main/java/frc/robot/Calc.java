@@ -1,7 +1,6 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.Joystick;
-import frc.robot.Constants;
 
 public class Calc {
     Joystick joystick;
@@ -15,38 +14,70 @@ public class Calc {
         }
     }
 
-    public static Speed calculateAnalogic(Joystick joystick, double multiplier) {
+    public static Speed calculateLeftAnalogic(Joystick joystick, double multiplier) {
         double left_X = joystick.getX();
-        double left_Y = (joystick.getY()) * -1;
+        double left_Y = joystick.getY();
 
-        double magnitude = Math.hypot(left_X, left_Y);
-        if (magnitude < Constants.deadZone) return new Speed(0, 0);
+        double magnitudeL = Math.hypot(left_X, left_Y);
+        if (magnitudeL < Constants.deadZone) return new Speed(0, 0);
         
-        magnitude = Math.min(1, Math.max(-1, magnitude));
-        double sen = left_Y / magnitude;
+        magnitudeL = Math.min(1, Math.max(-1, magnitudeL));
+        double left_sen = left_Y / magnitudeL;
 
         double leftSpeed = 0;
         double rightSpeed = 0;
 
         if (left_X > 0 && left_Y < 0) {
-            // Quadrante 1
-            leftSpeed = magnitude * multiplier;
-            rightSpeed = ((2 * sen + 1) * magnitude * -1) * multiplier;
-          } else if (left_X < -0 && left_Y < -0) {
-            // Quadrante 2
-            leftSpeed = ((2 * sen + 1) * -1) * magnitude * multiplier;
-            rightSpeed = magnitude * multiplier;
-          } else if (left_X < -0 && left_Y > 0) {
-            // Quadrante 3
-            leftSpeed = magnitude * multiplier * -1;
-            rightSpeed = ((2 * sen - 1) * -1) * magnitude * multiplier;
-          } else if (left_X > 0 && left_Y > 0) {
-            // Quadrante 4
-            leftSpeed = ((2 * sen - 1) * -1) * magnitude * multiplier;
-            rightSpeed = magnitude * multiplier * -1;
-          }
+        // Quadrante 1
+        leftSpeed = magnitudeL * multiplier;
+        rightSpeed = ((2 * left_sen + 1) * magnitudeL * -1) * multiplier;
+        } else if (left_X < -0 && left_Y < -0) {
+        // Quadrante 2
+        leftSpeed = ((2 * left_sen + 1) * -1) * magnitudeL * multiplier;
+        rightSpeed = magnitudeL * multiplier;
+        } else if (left_X < -0 && left_Y > 0) {
+        // Quadrante 3
+        leftSpeed = magnitudeL * multiplier * -1;
+        rightSpeed = ((2 * left_sen - 1) * -1) * magnitudeL * multiplier;
+        } else if (left_X > 0 && left_Y > 0) {
+        // Quadrante 4
+        leftSpeed = ((2 * left_sen - 1) * -1) * magnitudeL * multiplier;
+        rightSpeed = magnitudeL * multiplier * -1;
+        }
+        return new Speed(leftSpeed, rightSpeed);
+    }
 
-          return new Speed(leftSpeed, rightSpeed);
+    public static Speed calculateRightAnalogic(Joystick joystick, double multiplier) {
+        double right_X = joystick.getX();
+        double right_Y = joystick.getY();
+
+        double magnitudeR = Math.hypot(right_X, right_Y);
+        if (magnitudeR < Constants.deadZone) return new Speed(0, 0);
+        
+        magnitudeR = Math.min(1, Math.max(-1, magnitudeR));
+        double right_sen = right_Y / magnitudeR;
+
+        double leftSpeed = 0;
+        double rightSpeed = 0;
+
+        if (right_X > 0 && right_Y < 0) {
+            // Quadrante 1
+            rightSpeed = magnitudeR * multiplier;
+            rightSpeed = ((2 * right_sen + 1) * magnitudeR * -1) * multiplier;
+        } else if (right_X < -0 && right_Y < -0) {
+            // Quadrante 2
+            rightSpeed = ((2 * right_sen + 1) * -1) * magnitudeR * multiplier;
+            rightSpeed = magnitudeR * multiplier;
+        } else if (right_X < -0 && right_Y > 0) {
+            // Quadrante 3
+            rightSpeed = magnitudeR * multiplier * -1;
+            rightSpeed = ((2 * right_sen - 1) * -1) * magnitudeR * multiplier;
+        } else if (right_X > 0 && right_Y > 0) {
+            // Quadrante 4
+            rightSpeed = ((2 * right_sen - 1) * -1) * magnitudeR * multiplier;
+            rightSpeed = magnitudeR * multiplier * -1;
+        }
+        return new Speed(leftSpeed, rightSpeed);
     }
 
     public static Speed calculateTrigger(Joystick joystick, double multiplier) {
@@ -55,9 +86,12 @@ public class Calc {
 
         if (R_Trigger > Constants.deadZone) {
             double value = R_Trigger * multiplier;
+            return new Speed(value, value);
         } else if (L_Trigger > Constants.deadZone) {
             double value = (L_Trigger * multiplier) * -1;
             return new Speed(value, value);
+        } else if (R_Trigger < Constants.deadZone && L_Trigger < Constants.deadZone) {
+            return new Speed(0, 0);
         }
 
         return new Speed(0, 0);
@@ -73,7 +107,7 @@ public class Calc {
                 return new Speed(-0.5, -0.5);
             case 270:
                 return new Speed(-0.5, 0.5);
-            case -1: 
+            default: 
                 return new Speed(0, 0);
         }
     }

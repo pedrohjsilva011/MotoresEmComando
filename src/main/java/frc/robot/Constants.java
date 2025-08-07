@@ -10,6 +10,8 @@ public final class Constants {
   public static double negativeDeadZone = -0.04;
   public static int LTrigger = 2;
   public static int RTrigger = 3;
+  public static int right_X = 5;
+  public static int right_Y = 5;
   public static int povDeadZone = -1;
   public static int button_A = 1;
   public static int button_B = 2;
