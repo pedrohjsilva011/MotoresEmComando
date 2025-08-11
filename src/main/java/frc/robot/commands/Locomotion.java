@@ -9,7 +9,7 @@ import frc.robot.subsystems.Drive;
 import frc.robot.Calc;
 import frc.robot.Calc.Speed;
 
-public class Loc extends Command {
+public class Locomotion extends Command {
 
   private final Drive driveSubsystem;
   private final Joystick joystick;
