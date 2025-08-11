@@ -2,7 +2,7 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.Joystick;
 import frc.robot.subsystems.Drive;
-import frc.robot.commands.Loc;
+import frc.robot.commands.Locomotion;
 
 public class RobotContainer {
   
