@@ -10,6 +10,6 @@ public class RobotContainer {
   public final Joystick joystick = new Joystick(Constants.controller);
 
   public RobotContainer() {
-    drivesubsystem.setDefaultCommand(new Loc(drivesubsystem, joystick));
+    drivesubsystem.setDefaultCommand(new Locomotion(drivesubsystem, joystick));
   }
 }
